@@ -82,6 +82,7 @@ class _SignInPageState extends State<SignInPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: TextFormField(
+                controller: emailController,
                 decoration: InputDecoration(
                   hintText: hintEmail,
                   prefixIcon: Icon(Icons.email),
@@ -97,6 +98,7 @@ class _SignInPageState extends State<SignInPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: TextFormField(
+                controller: passwordController,
                 decoration: InputDecoration(
                   hintText: hintPassword,
                   prefixIcon: Icon(Icons.lock),
@@ -137,7 +139,9 @@ class _SignInPageState extends State<SignInPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _login();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorPrimary,
                   shape: RoundedRectangleBorder(
