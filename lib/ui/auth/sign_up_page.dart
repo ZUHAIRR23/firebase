@@ -15,10 +15,11 @@ class _SignUpPageState extends State<SignUpPage> {
   final _firebaseStore = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   void _signUp() async {
     if (_formKey.currentState!.validate()) {
@@ -29,13 +30,12 @@ class _SignUpPageState extends State<SignUpPage> {
 
     try {
       User? user =
-          (await _auth.signUp(emailController.text, passwordController.text));
+          (await _auth.signUp(_emailController.text, _passwordController.text));
 
       if (user != null) {
         await _firebaseStore.collection('users').doc(user.uid).set({
-          'name' : nameController.text,
-          'email': emailController,
-          'password': passwordController,
+          'name': _nameController.text,
+          'email': _emailController.text,
         });
 
         Navigator.pushReplacementNamed(context, '/home');
@@ -106,7 +106,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: TextFormField(
-                    controller: emailController,
+                    controller: _emailController,
                     decoration: InputDecoration(
                       hintText: hintEmail,
                       prefixIcon: Icon(Icons.email),
@@ -116,24 +116,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Email tidak boleh kosong';
-                      }
-                      if (!RegExp(
-                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                          .hasMatch(value)) {
-                        return 'Email tidak valid';
-                      }
-                      return null;
-                    },
                   ),
                 ),
                 SizedBox(height: 10),
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: TextFormField(
-                    controller: nameController,
+                    controller: _nameController,
                     decoration: InputDecoration(
                       hintText: hintUsername,
                       prefixIcon: Icon(Icons.person),
@@ -155,7 +144,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: TextFormField(
-                    controller: passwordController,
+                    controller: _passwordController,
                     decoration: InputDecoration(
                       hintText: hintPassword,
                       prefixIcon: Icon(Icons.lock),
@@ -191,7 +180,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: TextFormField(
-                    controller: confirmPasswordController,
+                    controller: _confirmPasswordController,
                     decoration: InputDecoration(
                       hintText: hintConfirmPassword,
                       prefixIcon: Icon(Icons.lock),
@@ -219,7 +208,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       if (value.length < 6) {
                         return 'Password minimal 6 karakter';
                       }
-                      if (value != passwordController.text) {
+                      if (value != _passwordController.text) {
                         return 'Password tidak sama';
                       }
                       return null;
