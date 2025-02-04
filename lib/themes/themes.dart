@@ -13,7 +13,8 @@ final subWelcomeText = 'Have a nice day! \nLet\'s start your day with a smile an
 final subRegisterText = 'Create an account to continue';
 
 final hintEmail = 'Email';
-final hintUsername = 'Username';
+final hintFirstName = 'First Name';
+final hintLastName = 'Last Name';
 final hintPassword = 'Password';
 final hintConfirmPassword = 'Confirm Password';
 final hintForgotPassword = 'Forgot Password';

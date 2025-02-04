@@ -8,6 +8,16 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  List<String>? role;
+  String? selectedRole;
+
+  @override
+  void initState() {
+    role = ['user', 'admin'];
+    selectedRole = role![0];
+    super.initState();
+  }
+
   bool isObscureText = true;
   bool isLoading = false;
 
@@ -15,7 +25,8 @@ class _SignUpPageState extends State<SignUpPage> {
   final _firebaseStore = FirebaseFirestore.instance;
   final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -34,8 +45,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
       if (user != null) {
         await _firebaseStore.collection('users').doc(user.uid).set({
-          'name': _nameController.text,
+          'first_name': _firstNameController.text,
+          'last_name': _lastNameController.text,
           'email': _emailController.text,
+          'role' : selectedRole!.toUpperCase(),
         });
 
         Navigator.pushReplacementNamed(context, '/home');
@@ -122,9 +135,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: TextFormField(
-                    controller: _nameController,
+                    controller: _firstNameController,
                     decoration: InputDecoration(
-                      hintText: hintUsername,
+                      hintText: hintFirstName,
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -134,7 +147,29 @@ class _SignUpPageState extends State<SignUpPage> {
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Username tidak boleh kosong';
+                        return 'Firstname tidak boleh kosong';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: TextFormField(
+                    controller: _lastNameController,
+                    decoration: InputDecoration(
+                      hintText: hintLastName,
+                      prefixIcon: Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Lastname tidak boleh kosong';
                       }
                       return null;
                     },
@@ -212,6 +247,32 @@ class _SignUpPageState extends State<SignUpPage> {
                         return 'Password tidak sama';
                       }
                       return null;
+                    },
+                  ),
+                ),
+                SizedBox(height: 10),
+                SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: Text("Role")),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: DropdownButton(
+                    value: selectedRole,
+                    items: role!
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(
+                        () {
+                          selectedRole = value;
+                        },
+                      );
+                      print(selectedRole);
                     },
                   ),
                 ),

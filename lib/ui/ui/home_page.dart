@@ -56,11 +56,19 @@ class _HomePageState extends State<HomePage> {
                   style: welcomeTextStyle,
                 ),
                 Text(
-                  'Email Saya: ${_auth.currentUser.email}',
+                  'Email Saya : ${_auth.currentUser.email}',
                   style: subWelcomeTextStyle.copyWith(fontSize: 16),
                 ),
                 Text(
                   'UID : ${_auth.currentUser!.uid}',
+                  style: subWelcomeTextStyle,
+                ),
+                Text(
+                  'Nama : ${snapshot.data!['first_name']} ${snapshot.data!['last_name']}',
+                  style: subWelcomeTextStyle,
+                ),
+                Text(
+                  'Role : ${snapshot.data!['role']}',
                   style: subWelcomeTextStyle,
                 ),
                 Row(
@@ -77,7 +85,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/note');
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amberAccent,
                       ),

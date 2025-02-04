@@ -49,4 +49,57 @@ class FirebaseService {
 
     return userDoc.data() as Map<String, dynamic>;
   }
+
+  // add Note
+  Future<void> addNote(String title, String imageUrl, String content) async {
+    String? userid = _auth.currentUser!.uid;
+    if (userid != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userid)
+          .collection("notes")
+          .add({
+        "title": title,
+        "imageUrl": imageUrl,
+        "content": content,
+        "userId": userid,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  Stream<QuerySnapshot> getNotes() {
+    String? userId = _auth.currentUser!.uid;
+    if (userId != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection("notes")
+          .orderBy('createdAt', descending: true)
+          .snapshots();
+    } else {
+      return Stream.empty();
+    }
+  }
+
+  // delete note
+  Future<void> deleteNotes(String noteId) async {
+    String? userId = _auth.currentUser!.uid;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('notes')
+        .doc(noteId)
+        .delete();
+  }
+
+  // update note
+  Future<void> updateNote(String noteId, String title, String content, String imageUrl) async {
+    String? userId = _auth.currentUser!.uid;
+    await FirebaseFirestore.instance.collection('users').doc(userId).collection('notes').doc(noteId).update({
+      "title": title,
+      "content": content,
+      "imageUrl": imageUrl,
+    });
+  }
 }
