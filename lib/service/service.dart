@@ -68,6 +68,7 @@ class FirebaseService {
     }
   }
 
+  // get note
   Stream<QuerySnapshot> getNotes() {
     String? userId = _auth.currentUser!.uid;
     if (userId != null) {
@@ -94,12 +95,40 @@ class FirebaseService {
   }
 
   // update note
-  Future<void> updateNote(String noteId, String title, String content, String imageUrl) async {
+  Future<void> updateNote(
+      String noteId, String title, String content, String imageUrl) async {
     String? userId = _auth.currentUser!.uid;
-    await FirebaseFirestore.instance.collection('users').doc(userId).collection('notes').doc(noteId).update({
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('notes')
+        .doc(noteId)
+        .update({
       "title": title,
       "content": content,
       "imageUrl": imageUrl,
+    });
+  }
+
+  // forgot password
+  Future<void> forgotPassword(String email) async {
+    if (email.isEmpty) {
+      throw Exception("Email cannot be empty");
+    }
+
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception("Failed to send reset password email");
+    }
+  }
+
+  // update profile
+  Future<void> updateProfile(String firstName, String lastName) async {
+    String? userId = _auth.currentUser!.uid;
+    await FirebaseFirestore.instance.collection("users").doc(userId).update({
+      "first_name": firstName,
+      "last_name": lastName,
     });
   }
 }

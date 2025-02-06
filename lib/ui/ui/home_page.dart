@@ -97,7 +97,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/profile');
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                       ),
