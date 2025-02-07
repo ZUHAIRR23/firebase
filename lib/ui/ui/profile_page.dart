@@ -18,20 +18,62 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     _loadProfileData();
+    _checkEmailVerified();
     super.initState();
   }
 
+  void _checkEmailVerified() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    User? user = _auth.currentUser;
+
+    if (!user!.emailVerified) {
+      await user.sendEmailVerification();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email verification link has been sent'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void _sendEmailVerification() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    User? user = _auth.currentUser;
+    await user!.sendEmailVerification();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Email verification link has been sent'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? pickedImage = await _picker.pickImage(
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 50,
     );
 
-    if(pickedImage != null) {
+    if (pickedImage != null) {
       setState(() {
         imageFile = File(pickedImage.path);
       });
+    }
+
+    if (imageFile != null) {
+      _uploadImage(imageFile!);
     }
   }
 
@@ -41,6 +83,26 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     String userId = FirebaseAuth.instance.currentUser!.uid;
+    Reference reference =
+        FirebaseStorage.instance.ref().child('profile/$userId');
+
+    UploadTask uploadTask = reference.putFile(imageFile);
+    TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => null);
+    String imageUrl = await taskSnapshot.ref.getDownloadURL();
+
+    await _auth.uploadProfileImage(imageUrl);
+
+    setState(() {
+      profileImage = imageUrl;
+      isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Profile image updated success'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   void _updateProfile() async {
@@ -92,9 +154,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: profileImage != null
-                          ? NetworkImage(profileImage!)
-                          : AssetImage('assets/images/chill.jpg'),
+                      backgroundImage: imageFile != null
+                          ? FileImage(imageFile!)
+                          : profileImage != null
+                              ? NetworkImage(profileImage!)
+                              : AssetImage('assets/images/chill.jpg'),
                     ),
                     Positioned(
                       child: Icon(
@@ -129,6 +193,21 @@ class _ProfilePageState extends State<ProfilePage> {
                       },
                       child: Text('Save'),
                     ),
+              SizedBox(height: 10),
+              (FirebaseAuth.instance.currentUser!.emailVerified)
+                  ? Text('Email Verified')
+                  : ElevatedButton(
+                      onPressed: () {
+                        _sendEmailVerification();
+                      },
+                      child: Text('Send email verification'),
+                    ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/changePassword');
+                },
+                child: Text('Change Password'),
+              ),
             ],
           ),
         ),
