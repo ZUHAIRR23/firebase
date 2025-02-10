@@ -145,4 +145,9 @@ class FirebaseService {
       await _auth.currentUser!.sendEmailVerification();
     }
   }
+
+  // change password
+  Future<void> changePassword(String newPassword) async {
+    await _auth.currentUser!.updatePassword(newPassword);
+  }
 }
