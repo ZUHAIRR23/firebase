@@ -13,6 +13,8 @@ import 'package:camera/camera.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:lottie/lottie.dart';
 import 'package:intl/intl.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 part 'ui/home_page.dart';
 part 'auth/sign_in_page.dart';
