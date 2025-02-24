@@ -9,7 +9,6 @@ class CameraPage extends StatefulWidget {
 
 class _CameraPageState extends State<CameraPage>
     with SingleTickerProviderStateMixin {
-  // set FaceDetector
   FaceDetector faceDetector =
       GoogleMLKit.vision.faceDetector(FaceDetectorOptions(
     enableContours: true,
