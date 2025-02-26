@@ -203,7 +203,7 @@ class _LeavePageState extends State<LeavePage> {
                                     context: context,
                                     firstDate: DateTime(1900),
                                     lastDate: DateTime(9999),
-                                    initialDate: DateTime.now(),
+                                    initialDate: DateTime.now()
                                   );
                                 },
                               ),
