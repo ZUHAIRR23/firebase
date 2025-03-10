@@ -7,101 +7,112 @@ class CameraPage extends StatefulWidget {
   State<CameraPage> createState() => _CameraPageState();
 }
 
-class _CameraPageState extends State<CameraPage>
-    with SingleTickerProviderStateMixin {
-  FaceDetector faceDetector =
-      GoogleMLKit.vision.faceDetector(FaceDetectorOptions(
-    enableContours: true,
-    enableClassification: true,
-    enableTracking: true,
-    enableLandmarks: true,
-  ));
+class _CameraPageState extends State<CameraPage> with TickerProviderStateMixin {
+  //set face detection
+  FaceDetector faceDetector = GoogleMLKit.vision.faceDetector(
+      FaceDetectorOptions(
+          enableContours: true,
+          enableClassification: true,
+          enableTracking: true,
+          enableLandmarks: true));
 
   List<CameraDescription>? cameras;
   CameraController? controller;
   XFile? image;
   bool isBusy = false;
 
-  void loadCamera() async {
-    cameras = await availableCameras();
-    if (cameras != null) {
-      controller = CameraController(
-        cameras![1],
-        ResolutionPreset.max,
-      );
-      controller!.initialize().then((_) {
-        if (mounted) {
-          return;
-        } else {
-          setState(() {});
-        }
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No camera available'),
-        ),
-      );
-    }
-  }
-
   @override
   void initState() {
-    super.initState();
     loadCamera();
+    super.initState();
+  }
+
+  loadCamera() async {
+    cameras = await availableCameras();
+    if (cameras != null) {
+      controller = CameraController(cameras![1], ResolutionPreset.max);
+      controller!.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {});
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              Icons.camera_enhance_outlined,
+              color: Colors.white,
+            ),
+            SizedBox(width: 10),
+            Text("Ups, camera not found!",
+                style: TextStyle(color: Colors.white))
+          ],
+        ),
+        backgroundColor: Colors.blueGrey,
+        shape: StadiumBorder(),
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    // set loading
+    //set loading
     showLoaderDialog(BuildContext context) {
-      AlertDialog alertDialog = AlertDialog(
+      AlertDialog alert = AlertDialog(
         content: Row(
-          children: <Widget>[
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
+          children: [
+            const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.blueAccent)),
+            Container(
+                margin: const EdgeInsets.only(left: 20),
+                child: const Text("Checking the data...")),
           ],
         ),
       );
-
       showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (BuildContext context) => alertDialog,
+        builder: (BuildContext context) {
+          return alert;
+        },
       );
     }
 
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.blueAccent,
-        title: Text('Camera'),
         leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text(
+          "Capture a selfie image",
+          style: TextStyle(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: Stack(
-        children: <Widget>[
+        children: [
           SizedBox(
-            height: size.height,
-            width: size.width,
-            child: controller == null
-                ? Center(
-                    child: Text('Camera Error'),
-                  )
-                : !controller!.value.isInitialized
-                    ? Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : CameraPreview(controller!),
-          ),
+              height: size.height,
+              width: size.width,
+              child: controller == null
+                  ? const Center(
+                      child: Text("Ups, camera error!",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)))
+                  : !controller!.value.isInitialized
+                      ? const Center(child: CircularProgressIndicator())
+                      : CameraPreview(controller!)),
           Padding(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.only(top: 40),
             child: Lottie.asset(
               "assets/raw/face_id_ring.json",
               fit: BoxFit.cover,
@@ -150,7 +161,7 @@ class _CameraPageState extends State<CameraPage>
                                       final inputImage =
                                           InputImage.fromFilePath(image!.path);
                                       Platform.isAndroid
-                                          ? prosesImage(inputImage)
+                                          ? processImage(inputImage)
                                           : Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -226,7 +237,7 @@ class _CameraPageState extends State<CameraPage>
     );
   }
 
-  // permission location
+  //permission location
   Future<bool> handleLocationPermission() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
@@ -301,8 +312,9 @@ class _CameraPageState extends State<CameraPage>
     return true;
   }
 
-  // face detection
-  Future<void> prosesImage(InputImage inputImage) async {
+  //face detection
+  Future<void> processImage(InputImage inputImage) async {
+    if (isBusy) return;
     isBusy = true;
     final faces = await faceDetector.processImage(inputImage);
     isBusy = false;
