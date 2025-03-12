@@ -321,6 +321,7 @@ class _LeavePageState extends State<LeavePage> {
         userDocRef.collection('attendance');
 
     attendanceCollection.add({
+      'address' : "",
       'name': name,
       'description': status,
       'dateTime': '$from - $until',
