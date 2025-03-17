@@ -14,26 +14,54 @@ class _HomeAttendancePageState extends State<HomeAttendancePage> {
       appBar: AppBar(
         title: Text('Home Attendance'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/attendance');
-              },
-              child: Text('Check In'),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                onTap: () {
+                  Navigator.pushNamed(context, '/attendance');
+                },
+                leading: const Icon(Icons.check_circle_outline),
+                title: const Text('Check In'),
+                trailing: const Icon(Icons.chevron_right),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/leave');
-              },
-              child: Text('Leave Request'),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                onTap: () {
+                  Navigator.pushNamed(context, '/leave');
+                },
+                leading: const Icon(Icons.calendar_today),
+                title: const Text('Leave Request'),
+                trailing: const Icon(Icons.chevron_right),
+              ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/history');
-              },
-              child: Text('History'),
+            const SizedBox(height: 20),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ListTile(
+                onTap: () {
+                  Navigator.pushNamed(context, '/history');
+                },
+                leading: const Icon(Icons.history),
+                title: const Text('History'),
+                trailing: const Icon(Icons.chevron_right),
+              ),
             ),
           ],
         ),
