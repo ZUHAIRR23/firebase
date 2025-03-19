@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!user!.emailVerified) {
       await user.sendEmailVerification();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Email verification link has been sent'),
           backgroundColor: Colors.green,
         ),
@@ -52,11 +52,14 @@ class _ProfilePageState extends State<ProfilePage> {
     User? user = _auth.currentUser;
     await user!.sendEmailVerification();
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Email verification link has been sent'),
         backgroundColor: Colors.green,
       ),
     );
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _pickImage() async {
@@ -98,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Profile image updated success'),
         backgroundColor: Colors.green,
       ),
@@ -116,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
     await _auth.updateProfile(firstName, lastName);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Profile update successfully'),
       ),
     );
@@ -133,85 +136,134 @@ class _ProfilePageState extends State<ProfilePage> {
 
     firstNameController.text = userData['first_name'];
     lastNameController.text = userData['last_name'];
+    profileImage = userData['profile_image'];
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _pickImage();
-                },
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: imageFile != null
-                          ? FileImage(imageFile!)
-                          : profileImage != null
-                              ? NetworkImage(profileImage!)
-                              : AssetImage('assets/images/chill.jpg'),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 70,
+                          backgroundImage: imageFile != null
+                              ? FileImage(imageFile!)
+                              : profileImage != null
+                                  ? NetworkImage(profileImage!)
+                                  : const AssetImage('assets/images/chill.jpg')
+                                      as ImageProvider,
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              size: 24,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    Positioned(
-                      child: Icon(
-                        Icons.camera_alt,
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: firstNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'First Name',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: lastNameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Last Name',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          elevation: 5,
+                        ),
+                        child: const Text('Simpan Profil'),
                       ),
-                      bottom: 0,
-                      right: 0,
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/changePassword');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          elevation: 5,
+                        ),
+                        child: const Text('Ganti Kata Sandi'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  (FirebaseAuth.instance.currentUser!.emailVerified)
+                      ? const Text(
+                          'Email Verified',
+                          style: TextStyle(color: Colors.green),
+                        )
+                      : ElevatedButton(
+                          onPressed: _sendEmailVerification,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.amber,
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            elevation: 5,
+                          ),
+                          child: const Text('Kirim Verifikasi Email'),
+                        ),
+                ],
               ),
-              TextFormField(
-                controller: firstNameController,
-                decoration: InputDecoration(
-                  labelText: 'First Name',
-                ),
-              ),
-              TextFormField(
-                controller: lastNameController,
-                decoration: InputDecoration(
-                  labelText: 'Last Name',
-                ),
-              ),
-              SizedBox(height: 10),
-              isLoading
-                  ? Center(
-                      child: CircularProgressIndicator(),
-                    )
-                  : ElevatedButton(
-                      onPressed: () {
-                        _updateProfile();
-                      },
-                      child: Text('Save'),
-                    ),
-              SizedBox(height: 10),
-              (FirebaseAuth.instance.currentUser!.emailVerified)
-                  ? Text('Email Verified')
-                  : ElevatedButton(
-                      onPressed: () {
-                        _sendEmailVerification();
-                      },
-                      child: Text('Send email verification'),
-                    ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/changePassword');
-                },
-                child: Text('Change Password'),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
