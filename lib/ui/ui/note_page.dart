@@ -44,32 +44,38 @@ class _NotePageState extends State<NotePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Update Note'),
+          title: const Text('Update Note', style: TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Title',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
                   ),
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _imageUrlController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Image URL',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
                   ),
                 ),
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _contentController,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     labelText: 'Content',
-                    border: OutlineInputBorder(),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
                   ),
                   maxLines: 5,
                 ),
@@ -81,7 +87,7 @@ class _NotePageState extends State<NotePage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -93,6 +99,11 @@ class _NotePageState extends State<NotePage> {
                 );
                 Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
               child: const Text('Update'),
             ),
           ],
@@ -107,119 +118,149 @@ class _NotePageState extends State<NotePage> {
       appBar: AppBar(
         title: const Text('Note Page'),
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Title',
-                    border: OutlineInputBorder(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
                   ),
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  controller: _imageUrlController,
-                  decoration: const InputDecoration(
-                    labelText: 'Image URL',
-                    border: OutlineInputBorder(),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      labelText: 'Title',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 15),
-                TextFormField(
-                  controller: _contentController,
-                  decoration: const InputDecoration(
-                    labelText: 'Content',
-                    border: OutlineInputBorder(),
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _imageUrlController,
+                    decoration: InputDecoration(
+                      labelText: 'Image URL',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
                   ),
-                  maxLines: 5,
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _addNote,
-                  child: const Text('Save Note'),
-                ),
-              ],
+                  const SizedBox(height: 15),
+                  TextFormField(
+                    controller: _contentController,
+                    decoration: InputDecoration(
+                      labelText: 'Content',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                    maxLines: 5,
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: _addNote,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    child: const Text('Save Note'),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: StreamBuilder(
-              stream: _firebaseService.getNotes(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error}"),
-                  );
-                } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                    child: Text("No notes found."),
-                  );
-                } else {
-                  return ListView.builder(
-                    itemCount: snapshot.data!.docs.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final note = snapshot.data!.docs[index];
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 4,
-                        margin: const EdgeInsets.all(8),
-                        child: ListTile(
-                          leading: Image.network(
-                            note['imageUrl'],
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
+            const SizedBox(height: 20),
+            Expanded(
+              child: StreamBuilder(
+                stream: _firebaseService.getNotes(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text("Error: ${snapshot.error}"),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("No notes found."),
+                    );
+                  } else {
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final note = snapshot.data!.docs[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                          title: Text(
-                            note['title'],
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
+                          elevation: 5,
+                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                          child: ListTile(
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                note['imageUrl'],
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            title: Text(
+                              note['title'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(
+                              note['content'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () => _updateNote(
+                                      note.id,
+                                      note['title'],
+                                      note['content'],
+                                      note['imageUrl']),
+                                  icon:
+                                  const Icon(Icons.edit, color: Colors.amber),
+                                ),
+                                IconButton(
+                                  onPressed: () => _deleteNote(note.id),
+                                  icon:
+                                  const Icon(Icons.delete, color: Colors.red),
+                                ),
+                              ],
                             ),
                           ),
-                          subtitle: Text(
-                            note['content'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () => _updateNote(
-                                    note.id,
-                                    note['title'],
-                                    note['content'],
-                                    note['imageUrl']),
-                                icon:
-                                    const Icon(Icons.edit, color: Colors.amber),
-                              ),
-                              IconButton(
-                                onPressed: () => _deleteNote(note.id),
-                                icon:
-                                    const Icon(Icons.delete, color: Colors.red),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }
-              },
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
